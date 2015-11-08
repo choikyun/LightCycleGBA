@@ -8,6 +8,6 @@ GBAのゲームです。
 ##使用素材
 こちらからお借りしました。  
 BGM  
-<http://freemusicarchive.org/music/SJ_Mellia_1461/>
+<http://freemusicarchive.org/music/SJ_Mellia_1461/>  
 SE  
 <http://soundeffect-lab.info/>
