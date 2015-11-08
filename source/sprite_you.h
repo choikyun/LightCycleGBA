@@ -4,10 +4,10 @@
 //======================================================================
 //
 //	sprite_you, 32x8@8, 
-//	+ 4 tiles Metatiled by 4x1 not compressed
+//	+ 4 tiles not compressed
 //	Total size: 256 = 256
 //
-//	Time-stamp: 2015-11-01, 23:01:29
+//	Time-stamp: 2015-11-08, 22:19:02
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
 //	( http://www.coranac.com/projects/#grit )
 //

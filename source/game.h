@@ -34,7 +34,7 @@
 #define LV_X (107)
 #define LV_Y (2)
 
-#define MAX_LEVEL (8)
+#define MAX_LEVEL (9)
 
 /*
  * ライフ表示
@@ -107,10 +107,10 @@
  */
 #define FIX (100)// 固定小数桁
 
-#define INIT_FIELD_X1 (7*FIX)
-#define INIT_FIELD_Y1 (17*FIX)
-#define INIT_FIELD_X2 (124*FIX)
-#define INIT_FIELD_Y2 (89*FIX)
+#define INIT_FIELD_X1 (10*FIX)
+#define INIT_FIELD_Y1 (20*FIX)
+#define INIT_FIELD_X2 (114*FIX)
+#define INIT_FIELD_Y2 (80*FIX)
 
 #define INIT_FIELD_W (105)
 #define INIT_FIELD_H (60)
@@ -150,13 +150,16 @@
  */
 #define MAX_ITEM (8)
 
-#define ITEM_W (6)
+#define ITEM_W (7)
 #define ITEM_H (7)
+// アイテムの配置間隔
+#define ITEM_SPACE (8)
 
+// 生成範囲　8ドット単位
 #define ITEM_FIELD_X1 (2)
-#define ITEM_FIELD_X2 (38)
+#define ITEM_FIELD_X2 (28)
 #define ITEM_FIELD_Y1 (2)
-#define ITEM_FIELD_Y2 (21)
+#define ITEM_FIELD_Y2 (18)
 
 #define ITEM_SPEED_UP (0)
 #define ITEM_SPEED_DOWN (1)
@@ -169,8 +172,12 @@
 /*
  * サイクルの大きさ
  */
-#define CYCLE_W (4)
-#define CYCLE_H (4)
+#define CYCLE_W (6)
+#define CYCLE_H (6)
+
+// サイクル中心の相対位置
+#define CYCLE_CX (2)
+#define CYCLE_CY (2)
 
 
 // ゲーム管理

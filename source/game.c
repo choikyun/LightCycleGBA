@@ -129,23 +129,27 @@ game (void)
     case GAME_READY:
       disp_you ();
       disp_cycles ();
-      disp_items ();
+      //disp_items ();
       disp_ready ();
       break;
 
     case GAME_PAUSE:
+      disp_cycles ();
       pause ();
       break;
 
     case GAME_OVER:
+      disp_cycles ();
       disp_over ();
       break;
 
     case GAME_CRASH:
+      disp_cycles ();
       disp_crash ();
       break;
 
     case GAME_CLEAR:
+      disp_cycles ();
       disp_clear ();
       break;
   }
@@ -413,7 +417,7 @@ init_stage (void)
       INIT_FIELD_Y1 }, { INIT_FIELD_X1, INIT_FIELD_Y2 }, { INIT_FIELD_X2,
       INIT_FIELD_Y2 } };
   // ターン可能なインターバル
-  int turn[] = {120, 60, 120, 120};
+  int turn[] = {120, 60, 120, 180};
 
   // キャラクタのシャッフル
   shuffle (c, 4);
@@ -422,7 +426,7 @@ init_stage (void)
   {
     cycles[i].direc = RND(0, 3);
     cycles[i].prev_direc = -1;
-    cycles[i].speed = DEF_CYCLE_SPEED  + CYCLE_SPEED * stage.lv;
+    cycles[i].speed = DEF_CYCLE_SPEED + (CYCLE_SPEED * stage.lv) / 2;
     cycles[i].x = pos[i][0] + RND(0, INIT_FIELD_W) * FIX;
     cycles[i].y = pos[i][1] + RND(0, INIT_FIELD_H) * FIX;
     cycles[i].chr = c[i];
@@ -499,8 +503,8 @@ init_items (void)
   }
   for(i = 0; i < MAX_ITEM; i++)
   {
-    items[i].x = RND(ITEM_FIELD_X1, ITEM_FIELD_X2) * ITEM_W;
-    items[i].y = RND(ITEM_FIELD_Y1, ITEM_FIELD_Y2) * ITEM_H;
+    items[i].x = RND(ITEM_FIELD_X1, ITEM_FIELD_X2) * ITEM_SPACE;
+    items[i].y = RND(ITEM_FIELD_Y1, ITEM_FIELD_Y2) * ITEM_SPACE;
     items[i].show = true;
     items[i].blink_on = true;
     items[i].blink_wait = items[i].blink_wait_rel = DEF_ITEM_BLINK_WAIT;
@@ -613,8 +617,8 @@ static bool
 is_deadend (int x, int y)
 {
   int i;
-  // 座標補正
-  int fix[][2] = { { 1, 1 }, { 2, 1 }, { 1, 2 }, { 2, 2 } };
+  // 中心座標
+  int fix[][2] = { { CYCLE_CX, CYCLE_CY }, { CYCLE_CX+1, CYCLE_CY }, { CYCLE_CX, CYCLE_CY+1 }, { CYCLE_CX+1, CYCLE_CY+1 } };
 
   for (i = 0; i < 4; i++)
   {
@@ -677,7 +681,7 @@ disp_cycles (void)
     if (cycles[i].show)
     {
       move_sprite (cycles[i].chr, cycles[i].x / FIX, cycles[i].y / FIX);
-      pset2x (cycles[i].x / FIX + 1, cycles[i].y / FIX + 1, col[cycles[i].chr]);
+      pset2x (cycles[i].x / FIX + CYCLE_CX, cycles[i].y / FIX + CYCLE_CY, col[cycles[i].chr]);
     }
     else
       erase_sprite (cycles[i].chr);
@@ -705,7 +709,7 @@ effect_cycles(int item, int chr)
       // スピードアップ　相手を速くする
       case ITEM_SPEED_UP:
         if (cycles[i].chr == chr) continue;
-        cycles[i].speed += (cycles[i].speed / 4);
+        cycles[i].speed += (cycles[i].speed / 2);
         if (cycles[i].speed > MAX_SPEED)
           cycles[i].speed = MAX_SPEED;
         break;
@@ -857,6 +861,7 @@ pause (void)
     if (game_state.scene & GAME_PAUSE)
     {
       StopMusic ();
+      PlaySound(SOUND_ITEM);
     }
     else
     {
@@ -892,7 +897,9 @@ update_lv (void)
 static void
 update_life (void)
 {
-  disp_num ( LIFE_X, LIFE_Y, stage.life);
+  int life = stage.life - 1;
+
+  disp_num ( LIFE_X, LIFE_Y, life);
 }
 
 /***************************************************
