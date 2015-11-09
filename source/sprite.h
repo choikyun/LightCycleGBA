@@ -18,6 +18,7 @@
 #include "sprite_down.h"
 #include "sprite_you.h"
 #include "sprite_you2.h"
+#include "sprite_arrow.h"
 
 
 #ifdef GLOBAL_VALUE_DEFINE

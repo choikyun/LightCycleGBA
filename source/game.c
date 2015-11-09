@@ -82,6 +82,12 @@ static void
 effect_cycles (int, int);
 static void
 check_clear (void);
+static void
+select_mode (void);
+static void
+erase_items (void);
+static void
+erase_cycles (void);
 
 //debug
 void
@@ -106,6 +112,7 @@ game (void)
   {
     case GAME_TITLE:
       seed++;
+      select_mode ();
       disp_title ();
       break;
 
@@ -129,7 +136,6 @@ game (void)
     case GAME_READY:
       disp_you ();
       disp_cycles ();
-      //disp_items ();
       disp_ready ();
       break;
 
@@ -184,9 +190,26 @@ disp_title (void)
     // デモ用サイクルパラメータ
     for (i = 0; i < MAX_CYCLE; i++)
     {
-      cycles[i].speed = CYCLE_SPEED * 4;
+      cycles[i].speed = CYCLE_SPEED * 5;
     }
   }
+}
+
+/***************************************************
+ モード設定
+ ***************************************************/
+static void
+select_mode (void)
+{
+  u16 key = game_state.key;
+
+  if (key & KEY_SELECT)
+  {
+    stage.mode ^= 1;
+    SRAMWrite32(SRAM_MODE, stage.mode);
+  }
+
+  move_sprite(SPRITE_ARROW, ARROW_X, ARROW_Y + ARROW_Y2 * stage.mode );
 }
 
 /***************************************************
@@ -356,8 +379,20 @@ init_game (void)
   stage.life = DEF_LIFE;
   stage.lv = 0;
 
+  stage.mode = SRAMRead32(SRAM_MODE);
+  if ((u32)stage.mode > 1 )
+  {
+    stage.mode = 0;// 数値がおかしかったらリセット
+  }
+
+
   // デモ開始まで
   game_state.demo_start = DEF_DEMO_START;
+
+  // 矢印スプライト
+  set_sprite_form (SPRITE_ARROW, OBJ_SIZE(0), OBJ_SQUARE, OBJ_256_COLOR);
+  set_sprite_tile (SPRITE_ARROW, TILE_ARROW);
+
 }
 
 /***************************************************
@@ -373,6 +408,11 @@ restart (void)
   srand (REG_TM0CNT + seed);
   // seedをSRAMに保存
   SRAMWrite32(SRAM_SEED, seed);
+
+  // サイクルクリア
+  erase_cycles();
+  // アイテムクリア
+  erase_items();
 
   // 背景初期化
   load_bg_bitmap_lz77 (DEF_BG_BITMAP);
@@ -419,14 +459,15 @@ init_stage (void)
   // ターン可能なインターバル
   int turn[] = {120, 60, 120, 180};
 
+
   // キャラクタのシャッフル
-  shuffle (c, 4);
+  shuffle (c, MAX_CYCLE);
 
   for (i = 0; i < MAX_CYCLE; i++)
   {
     cycles[i].direc = RND(0, 3);
     cycles[i].prev_direc = -1;
-    cycles[i].speed = DEF_CYCLE_SPEED + (CYCLE_SPEED * stage.lv) / 2;
+    cycles[i].speed = DEF_CYCLE_SPEED + (CYCLE_SPEED * stage.lv) / 4;
     cycles[i].x = pos[i][0] + RND(0, INIT_FIELD_W) * FIX;
     cycles[i].y = pos[i][1] + RND(0, INIT_FIELD_H) * FIX;
     cycles[i].chr = c[i];
@@ -435,11 +476,20 @@ init_stage (void)
     cycles[i].turn_interval = cycles[i].turn_interval_rel = turn[c[i]];
     cycles[i].blink_on = false;
     cycles[i].blink_wait = cycles[i].blink_wait_rel = CYCLE_BLINK_WAIT_NOMAL;
+    // VSモード用
+    cycles[i].use = stage.mode;// 0 or 1
 
     // 自機取得
     if (cycles[i].chr == 0)
+    {
       mycycle = &cycles[i];
+      cycles[i].use = true;
+    }
   }
+
+  // VSモード時　どれか1つだけtrue
+  cycles[RND(1,3)].use = true;
+
   // アイテム初期化
   init_items();
 
@@ -474,7 +524,7 @@ init_cycles (void)
   set_sprite_form (SPRITE_YOU2, OBJ_SIZE(1), OBJ_SHAPE(1), OBJ_256_COLOR);
 
 
-  // タイル
+  // タイル設定
   set_sprite_tile (SPRITE_POINT1, TILE_POINT1);
   set_sprite_tile (SPRITE_POINT2, TILE_POINT2);
   set_sprite_tile (SPRITE_POINT3, TILE_POINT3);
@@ -482,6 +532,9 @@ init_cycles (void)
 
   set_sprite_tile (SPRITE_YOU, TILE_YOU);
   set_sprite_tile (SPRITE_YOU2, TILE_YOU2);
+
+  // 矢印消去
+  erase_sprite(SPRITE_ARROW);
 }
 
 /***************************************************
@@ -526,7 +579,7 @@ move_cycles (void)
 
   for (i = 0; i < MAX_CYCLE; i++)
   {
-    if (cycles[i].over)
+    if (cycles[i].over || !cycles[i].use)
       continue;
 
     // 自機以外は自動ターン
@@ -554,7 +607,7 @@ change_direction (SpriteChrType *c)
 {
   static int coord[][2] = { { 2, 0 }, { 0, 2 }, { -2, 0 }, { 0, -2 } };
   // サイクルの気まぐれ度
-  static int turn_prob[] = { 128, 64, 128, 256 };
+  static int turn_prob[] = { 64, 32, 64, 128 };
   int prev;
   bool turn = false;
 
@@ -678,7 +731,7 @@ disp_cycles (void)
       cycles[i].show ^= 1;
     }
 
-    if (cycles[i].show)
+    if (cycles[i].show && cycles[i].use)
     {
       move_sprite (cycles[i].chr, cycles[i].x / FIX, cycles[i].y / FIX);
       pset2x (cycles[i].x / FIX + CYCLE_CX, cycles[i].y / FIX + CYCLE_CY, col[cycles[i].chr]);
@@ -737,7 +790,7 @@ get_item (SpriteChrType *c)
         && !items[i].use)
     {
       items[i].use = true;
-      erase_sprite (i + 4);
+      erase_sprite (i + SPRITE_ITEM);
       // アイテムの効果
       effect_cycles(items[i].chr, c->chr);
       PlaySound(SOUND_ITEM);
@@ -765,13 +818,40 @@ disp_items (void)
       }
 
       if (items[i].show)
-        move_sprite (i + 4, items[i].x, items[i].y);
+        move_sprite (i + SPRITE_ITEM, items[i].x, items[i].y);
       else
-        erase_sprite (i + 4);
+        erase_sprite (i + SPRITE_ITEM);
     }
   }
 }
 
+/***************************************************
+ アイテム非表示
+ ***************************************************/
+static void
+erase_items (void)
+{
+  int i;
+
+  for (i = 0; i < MAX_ITEM; i++)
+  {
+    erase_sprite (i + SPRITE_ITEM);
+  }
+}
+
+/***************************************************
+ サイクル非表示
+ ***************************************************/
+static void
+erase_cycles (void)
+{
+  int i;
+
+  for (i = 0; i < MAX_CYCLE; i++)
+  {
+    erase_sprite (i);
+  }
+}
 
 /***************************************************
  ゲームオーバー判定
@@ -816,7 +896,8 @@ check_clear (void)
     }
   }
 
-  if (over == 3)
+  // VSモード　バトルロイヤルモード
+  if ((over == 1 && !stage.mode) || (over == 3 && stage.mode))
   {
     // メッセージ初期化
     reset_message();

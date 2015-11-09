@@ -61,7 +61,14 @@
  */
 #define HISCORE_DIGIT (7)
 #define HISCORE_X (112)
-#define HISCORE_Y (106)
+#define HISCORE_Y (122)
+
+/*
+ * 矢印
+ */
+#define ARROW_X (64)
+#define ARROW_Y (89)
+#define ARROW_Y2 (104-89)
 
 /*
  * キー
@@ -81,7 +88,7 @@
 /*
  * YOUメッセージ
  */
-#define DEF_YOU_X (4)
+#define DEF_YOU_X (6)
 #define DEF_YOU_Y (-6)
 #define DEF_YOU2_X (-27)
 #define DEF_YOU2_Y (-6)
@@ -138,7 +145,7 @@
 /*
  * デモ開始まで
  */
-#define DEF_DEMO_START (60*8)
+#define DEF_DEMO_START (60*15)
 
 /*
  * シーンの切り替えウェイト
@@ -195,6 +202,7 @@ typedef struct
 typedef struct
 {
     int lv;
+    int mode;
     int life;
     bool demo;
 } StageType;
@@ -284,8 +292,9 @@ enum
   SPRITE_POINT2,
   SPRITE_POINT3,
   SPRITE_POINT4,
-  SPRITE_ITEM,// 4-11
-  SPRITE_YOU = 12,
+  SPRITE_ARROW,
+  SPRITE_ITEM,// 5-12
+  SPRITE_YOU = 13,
   SPRITE_YOU2,
 };
 
@@ -298,15 +307,23 @@ enum
 #define TILE_POINT_END (520)
 #define TILE_UP (522)
 #define TILE_DOWN (524)
+#define TILE_ARROW (526)
 
-#define TILE_YOU (526)
-#define TILE_YOU2 (534)
+#define TILE_YOU (528)
+#define TILE_YOU2 (536)
 
 ////////// SRAM
 
 #define SRAM_CHECK_HISC (0)
 #define SRAM_HISCORE (4)
+/*
+ * 乱数
+ */
 #define SRAM_SEED (8)
+/*
+ * ゲームモード
+ */
+#define SRAM_MODE (12)
 
 #define SRAM_ON (1)
 
