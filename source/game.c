@@ -477,7 +477,7 @@ init_stage (void)
     cycles[i].blink_on = false;
     cycles[i].blink_wait = cycles[i].blink_wait_rel = CYCLE_BLINK_WAIT_NOMAL;
     // VSモード用
-    cycles[i].use = stage.mode;// 0 or 1
+    cycles[i].use = stage.mode;// false 0 or true 1
 
     // 自機取得
     if (cycles[i].chr == 0)
@@ -488,7 +488,16 @@ init_stage (void)
   }
 
   // VSモード時　どれか1つだけtrue
-  cycles[RND(1,3)].use = true;
+  i = 0;
+  while (1)
+  {
+    if (cycles[i].chr != 0)
+    {
+      cycles[i].use = true;
+      break;
+    }
+    i++;
+  }
 
   // アイテム初期化
   init_items();
