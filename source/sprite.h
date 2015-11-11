@@ -19,6 +19,8 @@
 #include "sprite_you.h"
 #include "sprite_you2.h"
 #include "sprite_arrow.h"
+#include "sprite_drill.h"
+
 
 
 #ifdef GLOBAL_VALUE_DEFINE

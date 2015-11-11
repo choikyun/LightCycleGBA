@@ -119,9 +119,10 @@ init_sprite_chr (void)
   CpuSet ( sprite_point_endTiles, oam + sprite_point1TilesLen / 2 * 4, (COPY16 | sprite_point1TilesLen / 2));
   CpuSet ( sprite_upTiles, oam + sprite_point1TilesLen / 2 * 5, (COPY16 | sprite_point1TilesLen / 2));
   CpuSet ( sprite_downTiles, oam + sprite_point1TilesLen / 2 * 6, (COPY16 | sprite_point1TilesLen / 2));
-  CpuSet ( sprite_arrowTiles, oam + sprite_point1TilesLen / 2 * 7, (COPY16 | sprite_point1TilesLen / 2));
+  CpuSet ( sprite_drillTiles, oam + sprite_point1TilesLen / 2 * 7, (COPY16 | sprite_point1TilesLen / 2));
+  CpuSet ( sprite_arrowTiles, oam + sprite_point1TilesLen / 2 * 8, (COPY16 | sprite_point1TilesLen / 2));
 
-  CpuSet ( sprite_youTiles, oam + sprite_point1TilesLen / 2 * 8, (COPY16 | sprite_youTilesLen / 2));
-  CpuSet ( sprite_you2Tiles, oam + sprite_point1TilesLen / 2 * 8 + sprite_youTilesLen/2, (COPY16 | sprite_youTilesLen / 2));
+  CpuSet ( sprite_youTiles, oam + sprite_point1TilesLen / 2 * 9, (COPY16 | sprite_youTilesLen / 2));
+  CpuSet ( sprite_you2Tiles, oam + sprite_point1TilesLen / 2 * 9 + sprite_youTilesLen/2, (COPY16 | sprite_youTilesLen / 2));
 
 }

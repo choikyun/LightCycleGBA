@@ -155,7 +155,7 @@
 /*
  * アイテム
  */
-#define MAX_ITEM (8)
+#define MAX_ITEM (9)
 
 #define ITEM_W (7)
 #define ITEM_H (7)
@@ -170,11 +170,23 @@
 
 #define ITEM_SPEED_UP (0)
 #define ITEM_SPEED_DOWN (1)
+#define ITEM_DRILL (2)
 
 /*
  * アイテムの点滅間隔
  */
 #define DEF_ITEM_BLINK_WAIT (30)
+
+
+/*
+ * ドリル
+ */
+#define DEF_DRILL_TIME (60 * 3)
+
+#define DEF_DRILL_BLINK (15)
+
+
+
 
 /*
  * サイクルの大きさ
@@ -224,6 +236,8 @@ typedef struct
     int blink_wait;
     int blink_wait_rel;
     bool use;
+    bool drill;// ドリル
+    int drill_time;// ドリルの時間
 } SpriteChrType;
 
 // 点滅メッセージ
@@ -293,8 +307,8 @@ enum
   SPRITE_POINT3,
   SPRITE_POINT4,
   SPRITE_ARROW,
-  SPRITE_ITEM,// 5-12
-  SPRITE_YOU = 13,
+  SPRITE_ITEM,// 5-13
+  SPRITE_YOU = 14,
   SPRITE_YOU2,
 };
 
@@ -307,10 +321,11 @@ enum
 #define TILE_POINT_END (520)
 #define TILE_UP (522)
 #define TILE_DOWN (524)
-#define TILE_ARROW (526)
+#define TILE_DRILL (526)
+#define TILE_ARROW (528)
 
-#define TILE_YOU (528)
-#define TILE_YOU2 (536)
+#define TILE_YOU (530)
+#define TILE_YOU2 (538)
 
 ////////// SRAM
 

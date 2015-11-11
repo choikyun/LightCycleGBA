@@ -65,7 +65,7 @@ disp_num (int, int, u16);
 static void
 shuffle (int[], int);
 static bool
-is_deadend (int, int);
+is_deadend (SpriteChrType *, int, int);
 static void
 change_direction (SpriteChrType *);
 static void
@@ -555,14 +555,20 @@ init_items (void)
 {
   int i;
 
-  for(i = 0; i < MAX_ITEM/2; i++)
+  // アイテム最大9個
+  for(i = 0; i < 3; i++)
   {
     items[i].chr = ITEM_SPEED_UP;
   }
-  for(i = MAX_ITEM/2; i < MAX_ITEM; i++)
+  for(i = 3; i < 6; i++)
   {
     items[i].chr = ITEM_SPEED_DOWN;
   }
+  for(i = 6; i < 9; i++)
+  {
+    items[i].chr = ITEM_DRILL;
+  }
+
   for(i = 0; i < MAX_ITEM; i++)
   {
     items[i].x = RND(ITEM_FIELD_X1, ITEM_FIELD_X2) * ITEM_SPACE;
@@ -604,6 +610,19 @@ move_cycles (void)
       // アイテム判定
       if (!stage.demo)
         get_item (&cycles[i]);
+
+      // ドリルタイムアップ間近
+      if (cycles[i].drill_time == DEF_DRILL_TIME /3)
+      {
+        cycles[i].blink_wait_rel = DEF_DRILL_BLINK / 3;
+      }
+      // ドリルモード解除
+      if (cycles[i].drill && !--(cycles[i].drill_time))
+      {
+        cycles[i].drill = false;
+        cycles[i].blink_on = false;
+        cycles[i].show = true;
+      }
     }
   }
 }
@@ -630,7 +649,8 @@ change_direction (SpriteChrType *c)
   }
 
   // 行き止まりか 気まぐれ
-  if (is_deadend (c->x / FIX + coord[c->direc][0],
+  if (is_deadend (c,
+                  c->x / FIX + coord[c->direc][0],
                   c->y / FIX + coord[c->direc][1]) || turn)
   {
     // インターバルリセット
@@ -650,14 +670,16 @@ change_direction (SpriteChrType *c)
     c->prev_direc = prev;
 
     // もう一度調べる
-    if (is_deadend (c->x / FIX + coord[c->direc][0],
+    if (is_deadend (c,
+                    c->x / FIX + coord[c->direc][0],
                     c->y / FIX + coord[c->direc][1]))
     {
       // 行き止まりなので折り返す
       c->direc = (c->direc + 2) & 3;
 
       // 最後に調べる　もう移動出来ない
-      if (is_deadend (c->x / FIX + coord[c->direc][0],
+      if (is_deadend (c,
+                      c->x / FIX + coord[c->direc][0],
                       c->y / FIX + coord[c->direc][1]))
       {
         c->over = true;
@@ -676,7 +698,7 @@ change_direction (SpriteChrType *c)
  行き止まり判定
  ***************************************************/
 static bool
-is_deadend (int x, int y)
+is_deadend (SpriteChrType *c, int x, int y)
 {
   int i;
   // 中心座標
@@ -686,8 +708,15 @@ is_deadend (int x, int y)
   {
     // 壁もしくはサイクル
     int col = point (x + fix[i][0], y + fix[i][1]);
-    if (col == COL_WALL || col == COL_POINT1 || col == COL_POINT2
-        || col == COL_POINT3 || col == COL_POINT4)
+
+    if (col == COL_WALL)
+      return true;
+
+    // 他のサイクルか　ドリルモードの時は無視
+    if ((col == COL_POINT1
+        || col == COL_POINT2
+        || col == COL_POINT3
+        || col == COL_POINT4) && !c->drill)
       return true;
   }
   return false;
@@ -740,10 +769,16 @@ disp_cycles (void)
       cycles[i].show ^= 1;
     }
 
+    // 軌跡を表示
+    if (cycles[i].use)
+    {
+      pset2x (cycles[i].x / FIX + CYCLE_CX, cycles[i].y / FIX + CYCLE_CY, col[cycles[i].chr]);
+    }
+
+    // サイクルを表示
     if (cycles[i].show && cycles[i].use)
     {
       move_sprite (cycles[i].chr, cycles[i].x / FIX, cycles[i].y / FIX);
-      pset2x (cycles[i].x / FIX + CYCLE_CX, cycles[i].y / FIX + CYCLE_CY, col[cycles[i].chr]);
     }
     else
       erase_sprite (cycles[i].chr);
@@ -774,6 +809,15 @@ effect_cycles(int item, int chr)
         cycles[i].speed += (cycles[i].speed / 2);
         if (cycles[i].speed > MAX_SPEED)
           cycles[i].speed = MAX_SPEED;
+        break;
+
+      // ドリル　軌跡を突破できる
+      case ITEM_DRILL:
+        if (cycles[i].chr != chr) continue;
+        cycles[i].drill = true;
+        cycles[i].drill_time = DEF_DRILL_TIME;
+        cycles[i].blink_on = true;
+        cycles[i].blink_wait = cycles[i].blink_wait_rel = DEF_DRILL_BLINK;
         break;
     }
   }
@@ -870,7 +914,8 @@ check_over (void)
 {
   static int coord[][2] = { { 2, 0 }, { 0, 2 }, { -2, 0 }, { 0, -2 } };
 
-  if (is_deadend (mycycle->x / FIX + coord[mycycle->direc][0],
+  if (is_deadend (mycycle,
+                  mycycle->x / FIX + coord[mycycle->direc][0],
                   mycycle->y / FIX + coord[mycycle->direc][1]))
   {
     // メッセージ初期化
