@@ -96,7 +96,7 @@ vbaPrint (char *s);
 /*
  * サイクルの曲がる間隔
  */
-int turn_interval[] = { 200, 200, 300, 400 };
+int turn_interval[] = { 200, 200, 250, 300 };
 
 
 /***************************************************
@@ -207,7 +207,10 @@ select_mode (void)
   {
     stage.mode ^= 1;
     SRAMWrite32(SRAM_MODE, stage.mode);
+    hiscore = load_hiscore ();
   }
+
+  update_hiscore ();
 
   move_sprite(SPRITE_ARROW, ARROW_X, ARROW_Y + ARROW_Y2 * stage.mode );
 }
@@ -334,7 +337,6 @@ disp_over (void)
 
   if (key & KEY_START)
   {
-    init_hiscore ();
     init_game ();
     load_title ();
     init_sprite ();
@@ -385,6 +387,8 @@ init_game (void)
     stage.mode = 0;// 数値がおかしかったらリセット
   }
 
+  // ハイスコアのロード
+  hiscore = load_hiscore();
 
   // デモ開始まで
   game_state.demo_start = DEF_DEMO_START;

@@ -19,18 +19,13 @@
 void
 init_hiscore (void)
 {
-
-  if (!SRAMRead8 ( SRAM_CHECK_HISC))
+  if (!SRAMRead8 (SRAM_CHECK_HISC))
   {
     hiscore = 0;
-    SRAMWrite32 ( SRAM_HISCORE, 0);
-    SRAMWrite8 ( SRAM_CHECK_HISC, SRAM_ON);
+    SRAMWrite32 (SRAM_HISCORE_VS, 0);
+    SRAMWrite32 (SRAM_HISCORE_BATTLE, 0);
+    SRAMWrite8 (SRAM_CHECK_HISC, SRAM_ON);
   }
-  else
-  {
-    hiscore = SRAMRead32 ( SRAM_HISCORE);
-  }
-
 }
 
 /***************************************************
@@ -40,8 +35,9 @@ void
 clear_hiscore (void)
 {
 
-  SRAMWrite8 ( SRAM_CHECK_HISC, 0);
-  SRAMWrite32 ( SRAM_HISCORE, 0);
+  SRAMWrite8 (SRAM_CHECK_HISC, 0);
+  SRAMWrite32 (SRAM_HISCORE_VS, 0);
+  SRAMWrite32 (SRAM_HISCORE_BATTLE, 0);
   hiscore = 0;
   update_hiscore ();
 }
@@ -52,12 +48,12 @@ clear_hiscore (void)
 void
 save_hiscore (u32 sc)
 {
-  u8 check = SRAMRead8 ( SRAM_CHECK_HISC);
+  u8 check = SRAMRead8 (SRAM_CHECK_HISC);
 
-  if (sc > hiscore && check)
-  {
-    SRAMWrite32 ( SRAM_HISCORE, sc);
-  }
+  if (sc > hiscore && check && stage.mode == 0)
+    SRAMWrite32 (SRAM_HISCORE_VS, sc);
+  else if (sc > hiscore && check && stage.mode == 1)
+    SRAMWrite32 (SRAM_HISCORE_BATTLE, sc);
 }
 
 /***************************************************
@@ -66,8 +62,15 @@ save_hiscore (u32 sc)
 u32
 load_hiscore ()
 {
-  return SRAMRead32 (SRAM_HISCORE);
+  u32 hi;
+  if (stage.mode == 0)
+    hi = SRAMRead32 (SRAM_HISCORE_VS);
+  else
+    hi = SRAMRead32 (SRAM_HISCORE_BATTLE);
+
+  return hi;
 }
+
 
 /***************************************************
  SRAM操作　http://akkera102.sakura.ne.jp/gbadev/index.php?Doc.8%20GBA%A4%CE%BB%C5%CD%CD%A4%CB%A4%C4%A4%A4%A4%C6%28SRAM%29

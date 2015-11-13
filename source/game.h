@@ -181,7 +181,7 @@
 /*
  * ドリル
  */
-#define DEF_DRILL_TIME (60 * 3)
+#define DEF_DRILL_TIME (60 * 5)
 
 #define DEF_DRILL_BLINK (15)
 
@@ -330,15 +330,16 @@ enum
 ////////// SRAM
 
 #define SRAM_CHECK_HISC (0)
-#define SRAM_HISCORE (4)
+#define SRAM_HISCORE_VS (4)
+#define SRAM_HISCORE_BATTLE (8)
 /*
  * 乱数
  */
-#define SRAM_SEED (8)
+#define SRAM_SEED (12)
 /*
  * ゲームモード
  */
-#define SRAM_MODE (12)
+#define SRAM_MODE (16)
 
 #define SRAM_ON (1)
 

@@ -132,6 +132,5 @@ void
 load_title (void)
 {
   load_bg_bitmap_lz77(DEF_TITLE_BITMAP);
-  update_hiscore ();
 }
 
