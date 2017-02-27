@@ -93,5 +93,4 @@ load_bitmap (int x, int y, int w, int h, u16 *data);
 
 
 
-
 #endif	/* _bg_h_ */

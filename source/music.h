@@ -58,10 +58,14 @@ extern u8 s1_bin[]; // 効果音1　アイテム
 extern u8 s2_bin[]; // 効果音2　クラッシュ
 extern u8 s3_bin[]; // 効果音3　ゲームオーバー
 
+
+
 #define SAMPLING_E0 3631
 #define SAMPLING_E1 12809
 #define SAMPLING_E2 4421
 #define SAMPLING_E3 16269
+
+
 
 
 enum
